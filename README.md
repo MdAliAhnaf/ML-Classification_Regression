@@ -1,11 +1,31 @@
-# Traditional Machine Learning Classification and Regression
+# Traditional Machine Learning (Classification and Regression)
 
 This repository contains two machine learning tasks: a regression task and a classification task, implemented in separate Jupyter notebooks within their respective folders.
 
 ## Folder Structure
 
-/ML-Classification_Regression ├── traditional_ml_regression │ ├── ensemble_predictions_XGB_rf_LGBM_DATA-AUG.csv │ ├── ensemble_predictions_XGB_rf_LGBM_DATA-AUG_k-Fold.csv │ ├── lgbm_predictions.csv │ ├── MD._ALI_AHNAF.csv │ ├── ml_regression.ipynb │ ├── test.csv │ └── train.csv └── traditional_ml_classification ├── decision_tree_plot.png ├── ml_classification.ipynb ├── predicted_labels.csv ├── predicted_testX_labels.csv ├── test.csv └── train.csv
+/ML-Classification_Regression 
+    ── traditional_ml_regression
+        └── .ipynb_checkpoints
+            └── ml_regression-checkpoint.ipynb
+        └── ensemble_predictions_XGB_rf_LGBM_DATA-AUG.csv
+        └── ensemble_predictions_XGB_rf_LGBM_DATA-AUG_k-Fold.csv
+        └── lgbm_predictions.csv
+        └── MD._ALI_AHNAF.csv
+        └── ml_regression.ipynb
+        └── test.csv
+        └── train.csv
+        └── xgb_predictions.csv
 
+    ── traditional_ml_classification
+        └── .ipynb_checkpoints
+            └── ml_classification-checkpoint.ipynb
+        └── decision_tree_plot.png
+        └── ml_classification.ipynb
+        └── predicted_labels.csv
+        └── predicted_testX_labels.csv
+        └── test.csv
+        └── train.csv
 
 ## 1. Regression Task (`ml_regression.ipynb`)
 
@@ -35,13 +55,19 @@ The regression task utilizes a dataset with the following structure:
     - Other features similar to the training data but without the target variable `y`.
 
 ### Methodology
-1. **Data Preprocessing:**
-    - Encoding categorical variables.
-    - Computing correlation coefficients between input columns and the target variable.
-    - Combining training and test data for label encoding.
-    - Standardizing continuous features to ensure uniformity in scales.
+1. **Loading Data**: Datasets `train.csv` and `test.csv` are loaded into the notebook.
 
-2. **Model Training:**
+2. **Data Preprocessing:**
+    - **Encoding Categorical Variables**: Categorical features are encoded to numerical values for model compatibility.
+    - **Computing Correlation Coefficients**: Correlation coefficients between input features and the target variable are computed to assess feature importance.
+    - **Combining Data for Label Encoding**: The training and test datasets are combined to ensure consistent label encoding across both datasets.
+    - **Handling Categorical Variables**: Label Encoding is applied to convert categorical features into numeric values.
+    - **Separating Data**: After label encoding, the combined dataset is split back into `X_train` and `X_test`.
+    - **Standardizing Continuous Features**: Continuous numerical features are standardized to improve model performance.
+
+3. **Stratified K-Fold**: Stratified K-Fold cross-validation is applied to ensure that the training and validation datasets maintain the same distribution of the target variable.
+
+4. **Model Training:**
     - Employed models: `LGBMRegressor` and `XGBRegressor`.
     - Utilized Grid Search for hyperparameter tuning:
         - **LGBMRegressor Best Hyperparameters:**
@@ -50,11 +76,26 @@ The regression task utilizes a dataset with the following structure:
             - `num_leaves`: 64
             - `random_state`: 42
         - **XGBRegressor Best Hyperparameters:**
-            - [Include specific parameters once available]
-    
-3. **Model Evaluation:**
-    - Used RMSE as the evaluation metric.
-    - Achieved the **highest public score**: **5671017705258.910156** on Kaggle Competition.
+            - *[Grid Search was used to find the best hyperparameters]*
+                - `max_depth`: [3, 4, 5]
+                - `n_estimators`: [100, 200, 300]
+                - `learning_rate`: [0.1, 0.01, 0.001]
+                - `random_state`: 42
+
+5. **Data Augmentation**: Data augmentation techniques were employed to improve the generalization of the models.
+
+6. **Regularization & Learning Rate Scheduling**: Regularization techniques and learning rate scheduling were used to prevent overfitting and optimize training.
+
+7. **Early Stopping**: Early stopping was utilized during training to prevent overfitting by halting training when performance stopped improving.
+
+8. **Creating Predictions**: Predictions on the test dataset are generated and saved in a DataFrame with corresponding IDs.
+
+9. **Preparing for Submission**: Final predictions are prepared and saved in a `.csv` file for submission to Kaggle.
+
+10. **Model Evaluation:**
+    - Used Root Mean Squared Error (RMSE) as the evaluation metric.
+    - **Best Models**:
+  - `LGBMRegressor` and `XGBRegressor` achieved the **highest public score of 5671017705258.910156** on the Kaggle competition.
 
 ### Results
 | Model              | Best Hyperparameters                                     | Public Score                       |
@@ -91,15 +132,19 @@ The classification task utilizes a dataset structured as follows:
     - Other features similar to the training data but without the target variable `y`.
 
 ### Methodology
-1. **Data Preprocessing:**
-    - Encoding categorical variables using Label Encoding.
-    - Computing correlation coefficients between input columns and the target variable.
-    - Combining training and test data for label encoding.
-    - Splitting the combined data back into `X_train` and `X_test`.
-    - Converting categorical labels to numeric values for classification.
 
-2. **Model Training:**
-    - Implemented `Stratified K-Fold` cross-validation to ensure balanced representation of classes.
+1. **Loading Data**: Datasets `train.csv` and `test.csv` are loaded into the notebook.
+
+2. **Data Preprocessing:**
+    - **Encoding Categorical Variables**: Categorical features are encoded using Label Encoding for compatibility with the models.
+    - **Computing Correlation Coefficients**: Correlation coefficients between input features and the target variable are computed for feature selection and analysis.
+    - **Combining Data for Label Encoding**: The training and test datasets are combined to ensure consistent encoding across the entire dataset.
+    - **Handling Categorical Variables**: Label Encoding is applied to convert categorical features into numeric formats for modeling.
+    - **Separating Data**: After label encoding, the combined dataset is split back into `X_train` and `X_test`.
+    - **Converting Labels**: Target labels are converted to numeric values to allow classification by the models.
+
+3. **Model Training:**
+    - Implemented `Stratified K-Fold` cross-validation to ensure and maintain balanced representation of classes to tackle class imbalance.
     - Initialized classifiers, including:
         - `RandomForestClassifier`
         - `XGBoost`
@@ -108,14 +153,21 @@ The classification task utilizes a dataset structured as follows:
         - `Naive Bayes`
         - `LGBMClassifier`
         - `CatBoostClassifier`
-    - Combined predictions using a `Voting Classifier` with soft voting.
-    - Addressed class imbalance using `SMOTE` to oversample the minority class for each fold.
+    - **Ensemble Classifier**: A Voting Classifier is implemented to combine predictions from multiple classifiers using soft voting for better performance.
+    - **Cross-Validation with SMOTE**: Cross-validation is performed using SMOTE to address class imbalance. SMOTE oversamples the minority class in each fold. Addressed class imbalance using `SMOTE` to oversample the minority class for each fold.
+    - **Resampling**: The training data is oversampled to create a balanced dataset for final model training.
 
-3. **Model Evaluation:**
-    - Evaluated classifier performance based on accuracy scores.
+4. **Model Evaluation:**
+    - The classifiers are evaluated on accuracy and other relevant metrics using cross-validation.
+    - The best-performing classifier from the cross-validation is retrained on the entire dataset.
     - Generated a classification report detailing precision, recall, and F1-score.
 
 ### Results
+- **Best Model**: The best classifier was evaluated using a classification report that demonstrated high accuracy across all classes.
+
+### Best Classifier
+- For the classification task, **XGBoost** was selected as the best classifier, and the classification report was generated solely based on its performance.
+
 #### Classification Report
 | Class | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|---------|
@@ -129,11 +181,21 @@ The classification task utilizes a dataset structured as follows:
 | **Macro Avg** | **1.00** | **1.00** | **1.00** | 6950    |
 | **Weighted Avg** | **1.00** | **1.00** | **1.00** | 6950    |
 
-### Best Classifier
-- For the classification task, **XGBoost** was selected as the best classifier, and the classification report was generated solely based on its performance.
-
 ### Predictions
-- Generated predictions on the test data and saved them as a CSV file (`predicted_labels.csv`).
+- Generated predictions on the test data and saved them as a CSV file with ID and predicted labels(`predicted_labels.csv`).
 - Converted encoded labels back to original categorical labels.
+
+---
+
+## Technologies Used
+
+- Python (with libraries such as NumPy, Pandas, Scikit-learn, LightGBM, XGBoost, SMOTE)
+- Jupyter Notebooks
+- Kaggle API (for submission)
+
+## Evaluation Metrics
+
+- **Regression**: Root Mean Squared Error (RMSE)
+- **Classification**: Accuracy, Precision, Recall, F1-score (via Classification Report)
 
 ---
